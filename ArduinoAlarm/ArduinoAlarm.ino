@@ -22,8 +22,7 @@ int adc_key_in  = 0;
 #define btnNONE   5
 
 // read the buttons
-int read_LCD_buttons()
-{
+int read_LCD_buttons() {
   adc_key_in = analogRead(0);      // read the value from the sensor
   // my buttons when read are centered at these valies: 0, 144, 329, 504, 741
   // we add approx 50 to those values and check to see if we are close
@@ -48,6 +47,42 @@ int read_LCD_buttons()
   return btnNONE;  // when all others fail, return this...
 }
 
+int checkButtons() {
+  switch (lcd_key)               // depending on which button was pushed, we perform an action
+  {
+    case btnRIGHT:
+      {
+        return btnRIGHT;
+        break;
+      }
+    case btnLEFT:
+      {
+        return btnLEFT;
+        break;
+      }
+    case btnUP:
+      {
+        return btnUP;
+        break;
+      }
+    case btnDOWN:
+      {
+        return btnDOWN;
+        break;
+      }
+    case btnSELECT:
+      {
+        return btnSELECT;
+        break;
+      }
+    case btnNONE:
+      {
+        return btnNONE;
+        break;
+      }
+  }
+}
+
 // pin will chirp
 void chirp(int pin) {
   digitalWrite(pin, HIGH);   // turn the LED on (HIGH is the voltage level)
@@ -62,67 +97,56 @@ void buzz(int pin) {
   digitalWrite(pin, LOW);    // turn the LED off by making the voltage LOW
   delay(1000);              // wait for a second
 }
+// if tillPunishment = 2, a punishment would be given every 2 seconds.
+void alarmGo(int tillPunishment) {
+  int timeRinging = 0; // in seconds
+  while (btnSELECT != HIGH) {
+    buzz(2); // takes 2 seconds
+    timeRinging += 2;
+
+    if (timeRinging % tillPunishment == 0 && timeRinging != 0) {
+      //punish();
+    }
+  }
+}
 
 //==========================================================================//
 
-int alarmHour = 0;
-int alarmMinute = 0;
-int cursorPos = 0; // 0=none 1=hr 2=min 3=on/off
-
-void setup()
-{
-//  Serial.begin(9600);
-//  while (!Serial) {
-//
-//  }
-//  portOne.begin(9600);
-  pinMode(2, OUTPUT);
-  lcd.begin(16, 2);              // start the library
+void printTime() {
   lcd.setCursor(0, 0);
-  lcd.print("Push the buttons"); // print a simple message
+  lcd.print((String)hour() + ":" + minute() + ":" + second());
 }
 
-void loop()
-{
-  lcd.setCursor(6, 1);           // move cursor to second line "1" and 9 spaces over
-  lcd.print(time_t());
+int cursorPos = 0; // 0=none 1=hr 2=min 3=on/off
 
-  lcd.setCursor(0, 1);           // move to the begining of the second line
-  lcd_key = read_LCD_buttons();  // read the buttons
+int alarmHour = 0;
+int alarmMinute = 0;
+int alarmSecond = 0;
 
-  switch (lcd_key)               // depending on which button was pushed, we perform an action
-  {
-    case btnRIGHT:
-      {
-        lcd.print("RIGHT ");
-        break;
-      }
-    case btnLEFT:
-      {
-        lcd.print("LEFT   ");
-        break;
-      }
-    case btnUP:
-      {
-        lcd.print("UP    ");
-        break;
-      }
-    case btnDOWN:
-      {
-        lcd.print("DOWN  ");
-        break;
-      }
-    case btnSELECT:
-      {
-        lcd.print("SELECT");
-        break;
-      }
-    case btnNONE:
-      {
-        lcd.print("NONE  ");
-        break;
-      }
+void printAlarm() {
+  lcd.setCursor(0, 1);
+  lcd.print((String) alarmHour + ":" + alarmMinute + ":" + alarmSecond);
+}
+
+void setup() {
+  //  Serial.begin(9600);
+  //  while (!Serial) {
+  //
+  //  }
+  //  portOne.begin(9600);
+  pinMode(2, OUTPUT); // buzzer
+  lcd.begin(16, 2);
+}
+boolean cleared = false;
+void loop() {
+  if (second()==0 && !cleared) {
+    lcd.clear();
+    cleared=true;
+  } else if (second() == 1) {
+    cleared = false;
   }
-  buzz(2);
-  //chirp(2);
+  printTime();
+  printAlarm();
+  lcd_key = read_LCD_buttons();  // read the buttons
+  checkButtons();
 }
