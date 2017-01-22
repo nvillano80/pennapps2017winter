@@ -1,15 +1,10 @@
-#include <SoftwareSerial.h>
-
 #include <Time.h>
 #include <TimeLib.h>
-#include <SoftwareSerial.h>
-
-//Sample using LiquidCrystal library
 #include <LiquidCrystal.h>
 
 // select the pins used on the LCD panel
 LiquidCrystal lcd(8, 9, 4, 5, 6, 7);
-SoftwareSerial portOne(0, 1); // RX, TX
+//SoftwareSerial portOne(0, 1); // RX, TX
 
 // define some values used by the panel and buttons
 int lcd_key     = 0;
@@ -105,7 +100,7 @@ void alarmGo(int tillPunishment) {
     timeRinging += 2;
 
     if (timeRinging % tillPunishment == 0 && timeRinging != 0) {
-      //punish();
+      Serial.println("Donate");
     }
   }
 }
@@ -129,7 +124,7 @@ void printAlarm() {
 }
 
 void setup() {
-  //  Serial.begin(9600);
+  Serial.begin(9600);
   //  while (!Serial) {
   //
   //  }
@@ -137,16 +132,54 @@ void setup() {
   pinMode(2, OUTPUT); // buzzer
   lcd.begin(16, 2);
 }
-boolean cleared = false;
+
+int screenNum = 0;
 void loop() {
-  if (second()==0 && !cleared) {
+  //Serial.println(now());
+  //delay(1000);
+  if (screenNum == 0) {
+    screenNum = mainScreen();
+    if (screenNum != 0) {
+      lcd.clear();
+    }
+  } else if (screenNum == 1) {
+    screenNum = setScreen();
+    if (screenNum != 1) {
+      lcd.clear();
+    }
+  }
+}
+boolean mainCleared = false;
+int mainScreen() {
+  if (second() == 0 && !mainCleared) {
     lcd.clear();
-    cleared=true;
+    mainCleared = true;
   } else if (second() == 1) {
-    cleared = false;
+    mainCleared = false;
   }
   printTime();
   printAlarm();
   lcd_key = read_LCD_buttons();  // read the buttons
-  checkButtons();
+  int button = checkButtons();
+  if (button == btnNONE) { //button == none
+    return 0;
+  } else if (button == btnSELECT) { // button == select
+    return 1;
+  }
 }
+
+boolean setCleared = false;
+int setScreen() {
+  if (second() == 0 && !setCleared) {
+    lcd.clear();
+    setCleared = true;
+  } else if (second() == 1) {
+    setCleared = false;
+  }
+  printTime();
+  printAlarm();
+  lcd.setCursor(13, 0);
+  lcd.print("SET");
+  return 1;
+}
+
