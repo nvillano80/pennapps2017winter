@@ -43,7 +43,7 @@ Twitter twitter = factory.getInstance();
         //Instantiate and initialize a new twitter status update
         StatusUpdate statusUpdate = new StatusUpdate(
                 //your tweet or status message
-                "3.14");
+                "Humurous tweet");
       
         //tweet or update status
         Status status = twitter.updateStatus(statusUpdate);

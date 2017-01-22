@@ -1,5 +1,12 @@
 package Main;
 
+//import org.JSONArray;
+import com.mashape.unirest.http.HttpMethod;
+import com.mashape.unirest.http.HttpResponse;
+import com.mashape.unirest.http.JsonNode;
+import com.mashape.unirest.http.Unirest;
+import com.mashape.unirest.http.exceptions.UnirestException;
+import com.mashape.unirest.request.HttpRequestWithBody;
 import java.io.BufferedInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
@@ -7,14 +14,45 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 
 
 public class CapitalOne{
+	public static class Post{
+		public static void postCustomer(){
+			try {
+//			  HttpRequestWithBody request = Unirest.post("http://api.reimaginebanking.com/customers").body("");
+				// configure request
+//HttpRequestWithBody request = new HttpRequestWithBody(HttpMethod.POST, "http://api.reimaginebanking.com/customer");
+	//			request.body("");
+		HttpRequestWithBody request = Unirest.post("http://api.reimaginebanking.com/customers");		
+		request.queryString("key", API_KEY);
+		request.header("accept", "application/json");
+		request.header("Content-Type", "application/json");
+		request.body("{\"first_name\": \"Joe\",\"last_name\": \"Test\",\"address\": {\"street_number\": \"string\",\"street_name\": \"string\",\"city\": \"string\",\"state\": \"PA\",\"zip\": \"12345\"}}");
+// send request
+				HttpResponse<JsonNode> jsonResponse = request.asJson();
+				jsonResponse.toString();
+			System.out.println(jsonResponse.getBody().toString());
+//				
+//			//	HttpResponse<JsonNode> jsonResponse = Unirest.post("http://api.reimaginebanking.com/customers")
+//				//	.header("accept", "application/json")
+//					//.queryString("apiKey", API_KEY)
+//					//.field("parameter", "value")
+//					.field("foo", "bar")
+//					.asJson();
+			} catch (UnirestException ex) {
+				Logger.getLogger(CapitalOne.class.getName()).log(Level.SEVERE, null, ex);
+			}
+		}
+	}
 public static final String API_KEY="b84d3a153e2842b8465bcc4fde3d1839";
 	public static void main(String...args){
 	//testing 
 	HTMLGetter get = new HTMLGetter("https://api-sandbox.capitalone.com/branches?key=b84d3a153e2842b8465bcc4fde3d1839");
-	
+	//Post.postCustomer();
 	get.printHTML();
 }
 /**
